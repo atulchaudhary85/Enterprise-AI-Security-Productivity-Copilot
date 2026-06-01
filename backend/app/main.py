@@ -1,19 +1,32 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+from app.api import auth, workspaces, documents
+from app.database import engine, Base
 
-app = FastAPI(title="Enterprise AI Copilot", version="0.1.0")
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.VERSION,
+    description="Enterprise AI Copilot"
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
+app.include_router(workspaces.router)
+app.include_router(documents.router)
+
 @app.get("/")
 def root():
-    return {"name": "Enterprise AI Copilot", "status": "running"}
+    return {"name": settings.APP_NAME, "status": "running"}
 
 @app.get("/health")
 def health():

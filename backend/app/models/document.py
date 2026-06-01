@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean
 from datetime import datetime
 from app.database import Base
 
@@ -13,8 +13,20 @@ class Document(Base):
     file_size = Column(Integer, nullable=False)
     storage_path = Column(String(500), nullable=False)
     processing_status = Column(String(50), default="pending")
+    embedding_status = Column(String(50), default="pending")
+    total_pages = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("documents.id"))
+    chunk_index = Column(Integer, nullable=False)
+    content = Column(Text, nullable=False)
+    embedding = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class DocumentChat(Base):
     __tablename__ = "document_chats"
